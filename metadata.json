@@ -1,0 +1,6 @@
+{
+  "name": "Liquid RNG",
+  "description": "Liquid Glass Random Number Generator with bounded and unbounded BigInteger modes, real-time blur adjustments, and fluid micro-animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

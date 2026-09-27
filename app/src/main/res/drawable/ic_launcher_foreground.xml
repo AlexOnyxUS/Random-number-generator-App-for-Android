@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer fortune wheel ring segments in safe zone (center 54, 54, radius ~24) -->
+    <path
+        android:pathData="M54,28 A26,26 0 0,1 80,54"
+        android:strokeWidth="3.5"
+        android:strokeColor="#FF00F0FF" />
+    <path
+        android:pathData="M80,54 A26,26 0 0,1 54,80"
+        android:strokeWidth="3.5"
+        android:strokeColor="#FFA855F7" />
+    <path
+        android:pathData="M54,80 A26,26 0 0,1 28,54"
+        android:strokeWidth="3.5"
+        android:strokeColor="#FFF43F5E" />
+    <path
+        android:pathData="M28,54 A26,26 0 0,1 54,28"
+        android:strokeWidth="3.5"
+        android:strokeColor="#FF10B981" />
+
+    <!-- Wheel pointer at top -->
+    <path
+        android:pathData="M54,24 L50,18 L58,18 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Center isometric dice & coin emblem -->
+    <!-- Dice top face -->
+    <path
+        android:pathData="M54,41 L66,48 L54,55 L42,48 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="41"
+                android:endX="66"
+                android:endY="55"
+                android:type="linear">
+                <item android:color="#FF00F0FF" android:offset="0.0" />
+                <item android:color="#FF38BDF8" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Dice left face -->
+    <path
+        android:pathData="M42,48 L54,55 L54,69 L42,62 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="42"
+                android:startY="48"
+                android:endX="54"
+                android:endY="69"
+                android:type="linear">
+                <item android:color="#FF0284C7" android:offset="0.0" />
+                <item android:color="#FF0369A1" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Dice right face -->
+    <path
+        android:pathData="M54,55 L66,48 L66,62 L54,69 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="54"
+                android:startY="48"
+                android:endX="66"
+                android:endY="69"
+                android:type="linear">
+                <item android:color="#FFA855F7" android:offset="0.0" />
+                <item android:color="#FF7E22CE" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Dice white pips -->
+    <path
+        android:pathData="M54,48m-2,0a2,2 0 1,1 4,0a2,2 0 1,1 -4,0"
+        android:fillColor="#FFFFFFFF" />
+    <path
+        android:pathData="M46,55m-1.5,0a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+        android:fillColor="#FFFFFFFF" />
+    <path
+        android:pathData="M50,62m-1.5,0a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+        android:fillColor="#FFFFFFFF" />
+    <path
+        android:pathData="M60,55m-1.5,0a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+        android:fillColor="#FFFFFFFF" />
+    <path
+        android:pathData="M58,62m-1.5,0a1.5,1.5 0 1,1 3,0a1.5,1.5 0 1,1 -3,0"
+        android:fillColor="#FFFFFFFF" />
+</vector>
