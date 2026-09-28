@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Vibration
@@ -52,6 +53,7 @@ import com.example.ui.theme.LocalActiveGradient
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextPrimary
 import com.example.ui.theme.TextSecondary
+import com.example.util.VibrationType
 import com.example.viewmodel.MainUiState
 import com.example.viewmodel.RngViewModel
 
@@ -306,6 +308,212 @@ fun SettingsScreen(
                             ),
                             modifier = Modifier.testTag("haptic_switch")
                         )
+                    }
+                }
+            }
+        }
+
+        // Vibration Types Selection Card (7 Variants)
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 600.dp)
+                    .testTag("vibration_settings_card"),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Vibration,
+                                contentDescription = null,
+                                tint = activeGradient.primaryColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "ТИП ВИБРАЦИИ",
+                                color = activeGradient.primaryColor,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(DarkSurfaceVariant)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "7 вариантов",
+                                color = activeGradient.primaryColor,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    if (!uiState.hapticsEnabled) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(DarkSurfaceVariant)
+                                .clickable { viewModel.setHapticsEnabled(true) }
+                                .padding(14.dp)
+                        ) {
+                            Text(
+                                text = "Тактильный отклик выключен. Нажмите здесь, чтобы включить и протестировать 7 типов вибрации.",
+                                color = TextMuted,
+                                fontSize = 12.sp,
+                                lineHeight = 16.sp
+                            )
+                        }
+                    } else {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            VibrationType.entries.forEachIndexed { index, type ->
+                                val isSelected = uiState.vibrationType == type
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(14.dp))
+                                        .background(if (isSelected) DarkSurfaceVariant else Color.Transparent)
+                                        .border(
+                                            width = if (isSelected) 1.5.dp else 1.dp,
+                                            color = if (isSelected) activeGradient.primaryColor else DarkCardBorder,
+                                            shape = RoundedCornerShape(14.dp)
+                                        )
+                                        .clickable { viewModel.setVibrationType(type) }
+                                        .padding(horizontal = 14.dp, vertical = 12.dp)
+                                        .testTag("vibration_type_${type.id.lowercase()}"),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(
+                                        modifier = Modifier.weight(1f),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        // Number badge 1..7
+                                        Box(
+                                            modifier = Modifier
+                                                .size(34.dp)
+                                                .clip(CircleShape)
+                                                .background(
+                                                    if (isSelected) activeGradient.primaryColor.copy(alpha = 0.2f)
+                                                    else DarkSurfaceVariant
+                                                )
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = if (isSelected) activeGradient.primaryColor else Color.Transparent,
+                                                    shape = CircleShape
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "${index + 1}",
+                                                color = if (isSelected) activeGradient.primaryColor else TextSecondary,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+
+                                        Column(modifier = Modifier.weight(1f)) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                            ) {
+                                                Text(
+                                                    text = type.title,
+                                                    color = if (isSelected) TextPrimary else TextSecondary,
+                                                    fontSize = 14.sp,
+                                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                                )
+                                                Box(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(6.dp))
+                                                        .background(
+                                                            if (isSelected) activeGradient.primaryColor.copy(alpha = 0.15f)
+                                                            else Color.White.copy(alpha = 0.05f)
+                                                        )
+                                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                                ) {
+                                                    Text(
+                                                        text = type.badge,
+                                                        color = if (isSelected) activeGradient.primaryColor else TextMuted,
+                                                        fontSize = 10.sp,
+                                                        fontWeight = FontWeight.SemiBold
+                                                    )
+                                                }
+                                            }
+                                            Text(
+                                                text = type.description,
+                                                color = TextMuted,
+                                                fontSize = 11.sp,
+                                                lineHeight = 14.sp
+                                            )
+                                        }
+                                    }
+
+                                    // Action buttons: Preview button & Selected checkmark
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        IconButton(
+                                            onClick = { viewModel.previewVibration(type) },
+                                            modifier = Modifier
+                                                .size(34.dp)
+                                                .clip(CircleShape)
+                                                .background(DarkSurfaceVariant)
+                                                .testTag("preview_vibration_${type.id.lowercase()}")
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.PlayArrow,
+                                                contentDescription = "Тест",
+                                                tint = if (isSelected) activeGradient.primaryColor else TextSecondary,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+
+                                        if (isSelected) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(24.dp)
+                                                    .clip(CircleShape)
+                                                    .background(activeGradient.primaryColor),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = null,
+                                                    tint = Color(0xFF0F172A),
+                                                    modifier = Modifier.size(15.dp)
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

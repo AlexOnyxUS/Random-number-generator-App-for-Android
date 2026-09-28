@@ -14,6 +14,7 @@ import com.example.data.defaultWheelSectors
 import com.example.sensor.ShakeDetector
 import com.example.ui.theme.GradientTheme
 import com.example.util.VibrationHelper
+import com.example.util.VibrationType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,6 +52,7 @@ data class MainUiState(
     val currentTab: AppTab = AppTab.NUMBERS,
     val gradientTheme: GradientTheme = GradientTheme.CYAN_NEON,
     val hapticsEnabled: Boolean = true,
+    val vibrationType: VibrationType = VibrationType.CRISP,
     val shakeEnabled: Boolean = true,
 
     // Number generator (Bounded)
@@ -118,6 +120,7 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
                     current.copy(
                         gradientTheme = settings.gradientTheme,
                         hapticsEnabled = settings.hapticsEnabled,
+                        vibrationType = settings.vibrationType,
                         shakeEnabled = settings.shakeToGenerateEnabled,
                         minInput = settings.minValue,
                         maxInput = settings.maxValue,
@@ -537,25 +540,25 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
     // Vibration triggers with vibration helper
     private fun triggerVibrationTick() {
         if (_uiState.value.hapticsEnabled) {
-            vibrationHelper.tick()
+            vibrationHelper.tick(_uiState.value.vibrationType)
         }
     }
 
     private fun triggerCoinLandingHaptic() {
         if (_uiState.value.hapticsEnabled) {
-            vibrationHelper.coinLandingPattern()
+            vibrationHelper.coinLandingPattern(_uiState.value.vibrationType)
         }
     }
 
     private fun triggerWheelNotchHaptic() {
         if (_uiState.value.hapticsEnabled) {
-            vibrationHelper.wheelNotchTick()
+            vibrationHelper.wheelNotchTick(_uiState.value.vibrationType)
         }
     }
 
     private fun triggerVictoryHaptic() {
         if (_uiState.value.hapticsEnabled) {
-            vibrationHelper.victoryPattern()
+            vibrationHelper.victoryPattern(_uiState.value.vibrationType)
         }
     }
 
@@ -568,6 +571,24 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
     fun setHapticsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferencesManager.setHapticsEnabled(enabled)
+            if (enabled) {
+                vibrationHelper.previewPattern(_uiState.value.vibrationType)
+            }
+        }
+    }
+
+    fun setVibrationType(type: VibrationType) {
+        viewModelScope.launch {
+            preferencesManager.setVibrationType(type)
+            if (_uiState.value.hapticsEnabled) {
+                vibrationHelper.previewPattern(type)
+            }
+        }
+    }
+
+    fun previewVibration(type: VibrationType) {
+        if (_uiState.value.hapticsEnabled) {
+            vibrationHelper.previewPattern(type)
         }
     }
 

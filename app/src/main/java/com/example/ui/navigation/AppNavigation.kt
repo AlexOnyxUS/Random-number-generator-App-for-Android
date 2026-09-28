@@ -119,16 +119,16 @@ fun AppNavigation(
                     Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
                 is UiEvent.TriggerTick -> {
-                    if (uiState.hapticsEnabled) vibrationHelper.tick()
+                    if (uiState.hapticsEnabled) vibrationHelper.tick(uiState.vibrationType)
                 }
                 is UiEvent.TriggerCoinLanding -> {
-                    if (uiState.hapticsEnabled) vibrationHelper.coinLandingPattern()
+                    if (uiState.hapticsEnabled) vibrationHelper.coinLandingPattern(uiState.vibrationType)
                 }
                 is UiEvent.TriggerWheelNotch -> {
-                    if (uiState.hapticsEnabled) vibrationHelper.wheelNotchTick()
+                    if (uiState.hapticsEnabled) vibrationHelper.wheelNotchTick(uiState.vibrationType)
                 }
                 is UiEvent.TriggerVictory -> {
-                    if (uiState.hapticsEnabled) vibrationHelper.victoryPattern()
+                    if (uiState.hapticsEnabled) vibrationHelper.victoryPattern(uiState.vibrationType)
                 }
             }
         }

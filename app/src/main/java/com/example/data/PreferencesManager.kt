@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.ui.theme.GradientTheme
+import com.example.util.VibrationType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
@@ -34,6 +35,7 @@ data class WheelSectorData(
 data class AppSettings(
     val gradientTheme: GradientTheme = GradientTheme.CYAN_NEON,
     val hapticsEnabled: Boolean = true,
+    val vibrationType: VibrationType = VibrationType.CRISP,
     val shakeToGenerateEnabled: Boolean = true,
     val minValue: String = "1",
     val maxValue: String = "100",
@@ -67,6 +69,7 @@ class PreferencesManager(private val context: Context) {
     private object Keys {
         val GRADIENT_THEME = stringPreferencesKey("gradient_theme")
         val HAPTICS_ENABLED = booleanPreferencesKey("haptics_enabled")
+        val VIBRATION_TYPE = stringPreferencesKey("vibration_type")
         val SHAKE_ENABLED = booleanPreferencesKey("shake_enabled")
         val MIN_VALUE = stringPreferencesKey("min_value")
         val MAX_VALUE = stringPreferencesKey("max_value")
@@ -80,6 +83,9 @@ class PreferencesManager(private val context: Context) {
     val appSettingsFlow: Flow<AppSettings> = context.dataStore.data.map { prefs ->
         val themeName = prefs[Keys.GRADIENT_THEME] ?: GradientTheme.CYAN_NEON.name
         val theme = runCatching { GradientTheme.valueOf(themeName) }.getOrDefault(GradientTheme.CYAN_NEON)
+
+        val vibrationName = prefs[Keys.VIBRATION_TYPE] ?: VibrationType.CRISP.name
+        val vibrationType = VibrationType.fromId(vibrationName)
 
         val isInitialized = prefs[Keys.PRESETS_INITIALIZED] ?: false
         val presetsJson = prefs[Keys.SAVED_PRESETS_JSON]
@@ -104,6 +110,7 @@ class PreferencesManager(private val context: Context) {
         AppSettings(
             gradientTheme = theme,
             hapticsEnabled = prefs[Keys.HAPTICS_ENABLED] ?: true,
+            vibrationType = vibrationType,
             shakeToGenerateEnabled = prefs[Keys.SHAKE_ENABLED] ?: true,
             minValue = prefs[Keys.MIN_VALUE] ?: "1",
             maxValue = prefs[Keys.MAX_VALUE] ?: "100",
@@ -121,6 +128,10 @@ class PreferencesManager(private val context: Context) {
 
     suspend fun setHapticsEnabled(enabled: Boolean) {
         context.dataStore.edit { it[Keys.HAPTICS_ENABLED] = enabled }
+    }
+
+    suspend fun setVibrationType(type: VibrationType) {
+        context.dataStore.edit { it[Keys.VIBRATION_TYPE] = type.name }
     }
 
     suspend fun setShakeEnabled(enabled: Boolean) {
