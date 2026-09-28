@@ -138,14 +138,14 @@ fun WheelScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -153,37 +153,30 @@ fun WheelScreen(
                         Text(
                             text = "СЕКТОРЫ КОЛЕСА (${uiState.wheelSectors.size})",
                             color = TextPrimary,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Нажмите, чтобы настроить текст и количество",
+                            text = "Редактирование текста и количества",
                             color = TextMuted,
                             fontSize = 11.sp
                         )
                     }
 
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Button(
-                            onClick = { showManageDialog = true },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = DarkSurfaceVariant),
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Tune,
-                                contentDescription = null,
-                                tint = activeGradient.primaryColor,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.size(6.dp))
-                            Text(
-                                text = "Настроить",
-                                color = activeGradient.primaryColor,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    IconButton(
+                        onClick = { showManageDialog = true },
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(CircleShape)
+                            .background(DarkSurfaceVariant)
+                            .testTag("edit_wheel_sectors_button")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Редактировать секторы",
+                            tint = activeGradient.primaryColor,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
@@ -195,7 +188,7 @@ fun WheelScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(26.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
             ) {
@@ -359,14 +352,14 @@ fun WheelScreen(
             Button(
                 onClick = { viewModel.spinWheel() },
                 enabled = !uiState.isWheelSpinning,
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(26.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp)
                     .height(52.dp)
-                    .clip(RoundedCornerShape(18.dp))
+                    .clip(RoundedCornerShape(26.dp))
                     .background(activeGradient.brush)
                     .testTag("spin_wheel_button")
             ) {

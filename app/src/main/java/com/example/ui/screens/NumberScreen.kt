@@ -140,16 +140,16 @@ fun NumberScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 18.dp, vertical = 16.dp),
+                        .padding(horizontal = 18.dp, vertical = 18.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -157,11 +157,15 @@ fun NumberScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "ДИАПАЗОН: [${uiState.minInput} … ${uiState.maxInput}]",
+                            text = if (uiState.displayNumbers.size > 1) {
+                                "СГЕНЕРИРОВАНО ${uiState.displayNumbers.size} ЧИСЕЛ • [${uiState.minInput} … ${uiState.maxInput}]"
+                            } else {
+                                "ДИАПАЗОН: [${uiState.minInput} … ${uiState.maxInput}]"
+                            },
                             color = activeGradient.primaryColor,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+                            letterSpacing = 0.8.sp
                         )
 
                         if (copiedState) {
@@ -193,7 +197,7 @@ fun NumberScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ContentCopy,
-                                    contentDescription = "Копировать",
+                                    contentDescription = "Копировать все",
                                     tint = TextSecondary,
                                     modifier = Modifier.size(16.dp)
                                 )
@@ -207,56 +211,122 @@ fun NumberScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(72.dp)
+                                .height(80.dp)
                                 .horizontalScroll(scrollState),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = num,
                                 color = if (uiState.isNumberRolling) activeGradient.primaryColor else TextPrimary,
-                                fontSize = if (num.length > 8) 32.sp else 46.sp,
+                                fontSize = if (num.length > 8) 32.sp else 50.sp,
                                 fontWeight = FontWeight.Black,
                                 fontFamily = FontFamily.Monospace,
                                 textAlign = TextAlign.Center
                             )
                         }
                     } else {
+                        // Rebuilt modern multi-number display with individual cards and summary stats
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(140.dp)
-                                .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            uiState.displayNumbers.forEachIndexed { idx, valStr ->
+                            val items = uiState.displayNumbers
+                            val rows = items.chunked(2)
+                            rows.forEachIndexed { rowIndex, rowItems ->
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(DarkSurfaceVariant)
-                                        .clickable {
-                                            viewModel.copyToClipboard(valStr)
-                                            copiedState = true
-                                        }
-                                        .padding(horizontal = 12.dp, vertical = 7.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    Text(
-                                        text = "#${idx + 1}",
-                                        color = activeGradient.secondaryColor,
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        text = valStr,
-                                        color = TextPrimary,
-                                        fontSize = 15.sp,
-                                        fontFamily = FontFamily.Monospace,
-                                        fontWeight = FontWeight.Bold,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
+                                    rowItems.forEachIndexed { colIndex, valStr ->
+                                        val itemIndex = rowIndex * 2 + colIndex
+                                        Row(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(16.dp))
+                                                .background(DarkSurfaceVariant)
+                                                .border(
+                                                    width = 1.dp,
+                                                    color = if (uiState.isNumberRolling) activeGradient.primaryColor.copy(alpha = 0.5f) else DarkCardBorder,
+                                                    shape = RoundedCornerShape(16.dp)
+                                                )
+                                                .clickable {
+                                                    viewModel.copyToClipboard(valStr)
+                                                    copiedState = true
+                                                }
+                                                .padding(horizontal = 12.dp, vertical = 10.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(24.dp)
+                                                    .clip(CircleShape)
+                                                    .background(activeGradient.primaryColor.copy(alpha = 0.2f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${itemIndex + 1}",
+                                                    color = activeGradient.primaryColor,
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
+                                            Text(
+                                                text = valStr,
+                                                color = if (uiState.isNumberRolling) activeGradient.primaryColor else TextPrimary,
+                                                fontSize = 20.sp,
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Black,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                modifier = Modifier.padding(horizontal = 6.dp)
+                                            )
+                                            Icon(
+                                                imageVector = Icons.Default.ContentCopy,
+                                                contentDescription = "Копировать",
+                                                tint = TextMuted,
+                                                modifier = Modifier.size(14.dp)
+                                            )
+                                        }
+                                    }
+                                    // Empty spacer if row has odd item
+                                    if (rowItems.size == 1) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                    }
+                                }
+                            }
+
+                            // Summary statistics (Sum, Min, Max, Average) when generation is complete
+                            if (!uiState.isNumberRolling && items.isNotEmpty()) {
+                                val bigInts = items.mapNotNull { runCatching { java.math.BigInteger(it) }.getOrNull() }
+                                if (bigInts.size == items.size) {
+                                    val sum = bigInts.reduce { acc, b -> acc.add(b) }
+                                    val minVal = bigInts.minOrNull() ?: java.math.BigInteger.ZERO
+                                    val maxVal = bigInts.maxOrNull() ?: java.math.BigInteger.ZERO
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(DarkSurfaceVariant.copy(alpha = 0.6f))
+                                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "∑ Сумма: $sum",
+                                            color = TextSecondary,
+                                            fontSize = 11.sp,
+                                            fontFamily = FontFamily.Monospace,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                        Text(
+                                            text = "Min: $minVal • Max: $maxVal",
+                                            color = TextMuted,
+                                            fontSize = 11.sp,
+                                            fontFamily = FontFamily.Monospace
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -271,7 +341,7 @@ fun NumberScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp),
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(containerColor = DarkSurface),
                 border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
             ) {
@@ -366,7 +436,7 @@ fun NumberScreen(
                                 fontWeight = FontWeight.Medium
                             )
                             Text(
-                                text = "Выдача нескольких чисел сразу",
+                                text = "Максимум до 10 чисел",
                                 color = TextMuted,
                                 fontSize = 11.sp
                             )
@@ -399,12 +469,38 @@ fun NumberScreen(
                                     .size(32.dp)
                                     .clip(CircleShape)
                                     .background(DarkSurfaceVariant)
-                                    .clickable(enabled = uiState.batchCount < 50) {
+                                    .clickable(enabled = uiState.batchCount < 10) {
                                         viewModel.updateBatchCount(uiState.batchCount + 1)
                                     },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text("+", color = TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
+                    // Quick batch count selector chips (1 to 10)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        listOf(1, 2, 3, 5, 10).forEach { count ->
+                            val isSelected = uiState.batchCount == count
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(if (isSelected) activeGradient.primaryColor else DarkSurfaceVariant)
+                                    .clickable { viewModel.updateBatchCount(count) }
+                                    .padding(vertical = 7.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = count.toString(),
+                                    color = if (isSelected) Color(0xFF0F172A) else TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold
+                                )
                             }
                         }
                     }
@@ -434,16 +530,16 @@ fun NumberScreen(
         }
 
         // Saved Range Presets Section
-        if (uiState.savedPresets.isNotEmpty()) {
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .widthIn(max = 600.dp),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = DarkSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
-                ) {
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .widthIn(max = 600.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = DarkSurface),
+                border = androidx.compose.foundation.BorderStroke(1.dp, DarkCardBorder)
+            ) {
+                if (uiState.savedPresets.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -468,6 +564,31 @@ fun NumberScreen(
                                     onDelete = { viewModel.deletePreset(preset.id) }
                                 )
                             }
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Нет сохранённых пресетов",
+                            color = TextMuted,
+                            fontSize = 12.sp
+                        )
+                        TextButton(
+                            onClick = { viewModel.restoreDefaultPresets() },
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                text = "Стандартные пресеты",
+                                color = activeGradient.primaryColor,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         }
                     }
                 }
@@ -501,14 +622,14 @@ fun NumberScreen(
                     viewModel.generateNumbers(animate = true)
                 },
                 enabled = !uiState.isNumberRolling,
-                shape = RoundedCornerShape(18.dp),
+                shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .widthIn(max = 600.dp)
-                    .height(52.dp)
-                    .clip(RoundedCornerShape(18.dp))
+                    .height(54.dp)
+                    .clip(RoundedCornerShape(24.dp))
                     .background(activeGradient.brush)
                     .testTag("generate_numbers_button")
             ) {

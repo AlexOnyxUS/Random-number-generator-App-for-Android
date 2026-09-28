@@ -39,8 +39,9 @@ data class AppSettings(
     val maxValue: String = "100",
     val batchCount: Int = 1,
     val uniqueOnly: Boolean = true,
-    val savedPresets: List<SavedRangePreset> = defaultPresets(),
-    val wheelSectors: List<WheelSectorData> = defaultWheelSectors()
+    val savedPresets: List<SavedRangePreset> = emptyList(),
+    val wheelSectors: List<WheelSectorData> = defaultWheelSectors(),
+    val isPresetsInitialized: Boolean = false
 )
 
 fun defaultPresets(): List<SavedRangePreset> = listOf(
@@ -71,6 +72,7 @@ class PreferencesManager(private val context: Context) {
         val MAX_VALUE = stringPreferencesKey("max_value")
         val BATCH_COUNT = intPreferencesKey("batch_count")
         val UNIQUE_ONLY = booleanPreferencesKey("unique_only")
+        val PRESETS_INITIALIZED = booleanPreferencesKey("presets_initialized")
         val SAVED_PRESETS_JSON = stringPreferencesKey("saved_presets_json")
         val WHEEL_SECTORS_JSON = stringPreferencesKey("wheel_sectors_json")
     }
@@ -79,10 +81,16 @@ class PreferencesManager(private val context: Context) {
         val themeName = prefs[Keys.GRADIENT_THEME] ?: GradientTheme.CYAN_NEON.name
         val theme = runCatching { GradientTheme.valueOf(themeName) }.getOrDefault(GradientTheme.CYAN_NEON)
 
+        val isInitialized = prefs[Keys.PRESETS_INITIALIZED] ?: false
         val presetsJson = prefs[Keys.SAVED_PRESETS_JSON]
-        val presets = if (!presetsJson.isNullOrBlank()) {
-            parsePresetsJson(presetsJson)
+        val presets = if (isInitialized) {
+            if (!presetsJson.isNullOrBlank()) {
+                parsePresetsJson(presetsJson)
+            } else {
+                emptyList()
+            }
         } else {
+            // First time launch: default presets
             defaultPresets()
         }
 
@@ -102,7 +110,8 @@ class PreferencesManager(private val context: Context) {
             batchCount = prefs[Keys.BATCH_COUNT] ?: 1,
             uniqueOnly = prefs[Keys.UNIQUE_ONLY] ?: true,
             savedPresets = presets,
-            wheelSectors = sectors
+            wheelSectors = sectors,
+            isPresetsInitialized = isInitialized
         )
     }
 
@@ -139,7 +148,14 @@ class PreferencesManager(private val context: Context) {
             obj.put("unique", preset.uniqueOnly)
             array.put(obj)
         }
-        context.dataStore.edit { it[Keys.SAVED_PRESETS_JSON] = array.toString() }
+        context.dataStore.edit {
+            it[Keys.SAVED_PRESETS_JSON] = array.toString()
+            it[Keys.PRESETS_INITIALIZED] = true
+        }
+    }
+
+    suspend fun restoreDefaultPresets() {
+        savePresets(defaultPresets())
     }
 
     suspend fun saveWheelSectors(sectors: List<WheelSectorData>) {
@@ -171,9 +187,9 @@ class PreferencesManager(private val context: Context) {
                     )
                 )
             }
-            if (list.isEmpty()) defaultPresets() else list
+            list
         } catch (e: Exception) {
-            defaultPresets()
+            emptyList()
         }
     }
 

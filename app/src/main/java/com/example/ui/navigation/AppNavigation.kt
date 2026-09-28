@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.ui.components.BottomFloatingBar
+import com.example.ui.components.EasterEgg67Overlay
 import com.example.ui.screens.CoinScreen
 import com.example.ui.screens.HistoryScreen
 import com.example.ui.screens.NumberScreen
@@ -209,6 +210,12 @@ fun AppNavigation(
                         }
                     }
                 }
+
+                // Animated edge border Easter Egg effect when 67 is generated
+                EasterEgg67Overlay(
+                    visible = uiState.showEasterEgg67,
+                    onDismiss = { viewModel.dismissEasterEgg67() }
+                )
             }
         }
     }

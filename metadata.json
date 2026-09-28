@@ -1,6 +1,6 @@
 {
   "name": "Liquid RNG",
-  "description": "Liquid Glass Random Number Generator with bounded and unbounded BigInteger modes, real-time blur adjustments, and fluid micro-animations.",
+  "description": "RNG Studio 2.1: Clean random number generator with multi-number support (up to 10), coin flipper, customizable wheel of fortune, shake recognition, preset saving, and lucky 67 Easter egg.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

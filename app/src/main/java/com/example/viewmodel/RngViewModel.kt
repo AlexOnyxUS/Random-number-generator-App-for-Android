@@ -62,7 +62,8 @@ data class MainUiState(
     val displayNumbers: List<String> = listOf("42"),
     val isNumberRolling: Boolean = false,
     val numberErrorMessage: String? = null,
-    val savedPresets: List<SavedRangePreset> = defaultPresets(),
+    val savedPresets: List<SavedRangePreset> = emptyList(),
+    val showEasterEgg67: Boolean = false,
 
     // Coin flipper
     val coinResult: CoinSide = CoinSide.HEADS,
@@ -127,6 +128,9 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
                 shakeDetector.isEnabled = settings.shakeToGenerateEnabled
+                if (!settings.isPresetsInitialized) {
+                    preferencesManager.savePresets(defaultPresets())
+                }
             }
         }
     }
@@ -162,7 +166,7 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateBatchCount(batch: Int) {
-        _uiState.update { it.copy(batchCount = batch.coerceIn(1, 50), numberErrorMessage = null) }
+        _uiState.update { it.copy(batchCount = batch.coerceIn(1, 10), numberErrorMessage = null) }
         saveNumberSettings()
     }
 
@@ -213,6 +217,13 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(savedPresets = updated) }
         viewModelScope.launch {
             preferencesManager.savePresets(updated)
+        }
+    }
+
+    fun restoreDefaultPresets() {
+        viewModelScope.launch {
+            preferencesManager.restoreDefaultPresets()
+            _uiEvents.emit(UiEvent.ShowToast("Стандартные пресеты восстановлены"))
         }
     }
 
@@ -314,17 +325,31 @@ class RngViewModel(application: Application) : AndroidViewModel(application) {
                 result = results.joinToString(", ")
             )
 
+            val has67 = results.contains("67")
             _uiState.update { current ->
                 current.copy(
                     numberResults = results,
                     displayNumbers = results,
                     isNumberRolling = false,
-                    history = (listOf(histItem) + current.history).take(40)
+                    history = (listOf(histItem) + current.history).take(40),
+                    showEasterEgg67 = has67
                 )
             }
 
             triggerVictoryHaptic()
         }
+    }
+
+    fun dismissEasterEgg67() {
+        _uiState.update { it.copy(showEasterEgg67 = false) }
+    }
+
+    fun pauseSensors() {
+        shakeDetector.pause()
+    }
+
+    fun resumeSensors() {
+        shakeDetector.resume()
     }
 
     private fun randomBigIntegerInRange(min: BigInteger, max: BigInteger, range: BigInteger): BigInteger {
